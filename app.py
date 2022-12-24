@@ -17,6 +17,10 @@ podcast_intros = data['intro']
 flat_parsed_embed = pickle.load(open('flat_parsed_embed.pkl','rb'))
 flat_parsed_podcast = pickle.load(open('flat_parsed_podcast.pkl','rb'))
 
+all_pod_queries = pickle.load(open('./podcast_queries.pkl', 'rb'))
+queries, query_embs = pickle.load(open('./query.pkl', 'rb'))
+query_id = {j:i for i,j in enumerate(queries)}
+
 @app.route('/')
 def hello():
     return 'Hello, World!'
@@ -62,6 +66,11 @@ def get_top_spans():
     top_spans = util.get_span(co, query, segment, topk)
     return jsonify({'top_spans':top_spans})
 
+@app.route('/queries',methods=['POST', "GET"])
+def get_queries():
+    pid = int(request.args.get('pid'))
+    q = util.get_queries(pid, all_pod_queries, query_id, query_embs, flat_parsed_podcast, flat_parsed_embed)
+    return jsonify({'queries':q})
 
 if __name__ == '__main__':
     app.run(debug=True)
